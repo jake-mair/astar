@@ -17,6 +17,8 @@ using namespace std;
 
 typedef pair<int, int> coordinates;
 
+coordinates START_CORD(0, 0);
+
 // Print coordinates
 ostream & operator<<(ostream &out, coordinates A) {
     out << "[" << A.first << ", " << A.second << "]";
@@ -63,8 +65,34 @@ ostream & operator<<(ostream &out, Node A) {
 
 // Overload the less than operator for Nodes
 bool operator<(const Node& a, const Node& b) {
-    return a.f < b.f;
+    return a.f > b.f;
 }
+
+int manhattan(coordinates a, coordinates b);
+
+void create_nodes(vector<vector<int>> grid, priority_queue<Node> &pq) {
+    int x = grid.size() - 1;
+    int y = grid[0].size() - 1;
+
+    coordinates end_pt(x, y);
+    for (int i = 0; i < grid.size(); i++) {
+        vector<int> temp = grid[i];
+        for (int j = 0; j < temp.size(); j++) {
+            coordinates current(i, j);
+            Node a(current, 0, manhattan(current, end_pt));
+            // cout << a << endl;
+            pq.push(a);
+        }
+    }
+}
+
+// In progress
+// int movement_cost(vector<vector<int>> grid, coordinates target) {
+//     coordinates current(START_CORD);
+//     while (current != target) {
+
+//     }
+// }
 
 void print_queue(priority_queue<Node> &pq) {
     while (!pq.empty())
@@ -96,6 +124,6 @@ int main() {
     cout << grid << endl;
 
     priority_queue<Node> pq;
-    pq.push(start);
+    create_nodes(grid, pq);
     print_queue(pq);
 }
