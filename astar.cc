@@ -61,10 +61,7 @@ ostream & operator<<(ostream &out, Node A) {
     return out;
 }
 
-
-
 // Overload the less than operator for Nodes
-// ostream & operator<
 bool operator<(const Node& a, const Node& b) {
     return a.f < b.f;
 }
@@ -76,6 +73,7 @@ void print_queue(priority_queue<Node> &pq) {
 			pq.pop();
 		}
 }
+
 // Heuristic function
 int manhattan(coordinates a, coordinates b) {
     return (abs(a.first - b.first) + abs(a.second - b.second));
