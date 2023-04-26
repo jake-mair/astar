@@ -69,15 +69,13 @@ bool operator<(const Node& a, const Node& b) {
     return a.f < b.f;
 }
 
-template<typename A> void print_queue(A& pq)
-{
-	while (!pq.empty())
+void print_queue(priority_queue<Node> &pq) {
+    while (!pq.empty())
 		{
 			cout << pq.top() << endl;
 			pq.pop();
 		}
 }
-
 // Heuristic function
 int manhattan(coordinates a, coordinates b) {
     return (abs(a.first - b.first) + abs(a.second - b.second));
