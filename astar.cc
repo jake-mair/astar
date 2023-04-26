@@ -71,21 +71,68 @@ bool operator<(const Node& a, const Node& b) {
 
 double euclidian(coordinates a, coordinates b);
 
-void create_nodes(vector<vector<int>> grid, priority_queue<Node> &pq) {
-    int x = grid.size() - 1;
-    int y = grid[0].size() - 1;
+// void create_nodes(vector<vector<int>> grid, priority_queue<Node> &pq) {
+//     int x = grid.size() - 1;
+//     int y = grid[0].size() - 1;
 
-    coordinates end_pt(x, y);
-    for (int i = 0; i < grid.size(); i++) {
-        vector<int> temp = grid[i];
-        for (int j = 0; j < temp.size(); j++) {
-            coordinates current(i, j);
-            Node a(current, 0, euclidian(current, end_pt));
-            // cout << a << endl;
-            pq.push(a);
+//     coordinates end_pt(x, y);
+//     for (int i = 0; i < grid.size(); i++) {
+//         vector<int> temp = grid[i];
+//         for (int j = 0; j < temp.size(); j++) {
+//             coordinates current(i, j);
+//             Node a(current, 0, euclidian(current, end_pt));
+//             // cout << a << endl;
+//             pq.push(a);
+//         }
+//     }
+// }
+
+void search(vector<vector<int>> grid) {
+    priority_queue<Node> open_list;
+    vector<Node> closed_list;
+
+    Node start_node(START_CORD, 0, 0);
+    open_list.push(start_node);
+
+    while (!open_list.empty()) {
+        Node q = open_list.top();
+        open_list.pop();
+
+        // vector<Node> successors = generate_successors(grid, q);
+
+        /*
+        for (int i = 0; i < successors.size(); i++) {
+            if successors[i] is the goal stop search
+
+            else 
+                compute g and h
+                successors[i].move_cost = euclidian(successors[i].location, q.location);
+                successors[i].h_cost = euclidian(successors[i].location, target_node.location);
+            
+            
+            check open list
+            check closed list
+
+            add successors to open list
         }
+        
+        */
+
+       closed_list.push_back(q);
+
     }
 }
+
+bool valid_direction(vector<vector<int>> grid, coordinates xy) {
+    return (xy.first >= 0 && xy.first < grid[0].size() && xy.second >= 0 && xy.second < grid.size());
+}
+
+/* vector<Node> generate_successors(vector<vector<int>> grid, Node parent) {
+    // Look in all directions and find which directions are valid
+    // Store those nodes in a vector
+}
+
+*/
 
 // In progress
 // int movement_cost(vector<vector<int>> grid, coordinates target) {
@@ -115,6 +162,7 @@ int main() {
     coordinates end_cord(1, 4);
     Node start(st_cord, 0, euclidian(st_cord, end_cord));
 
+    coordinates invalid(0, 8);
     // cout << manhattan(a, b) << endl;
 
     // cout << a.location << endl;
@@ -124,9 +172,5 @@ int main() {
         {0, 1, 0, 0, 0}
     };
 
-    cout << grid << endl;
-
-    priority_queue<Node> pq;
-    create_nodes(grid, pq);
-    print_queue(pq);
+    cout << boolalpha << valid_direction(grid, invalid) << endl;
 }
