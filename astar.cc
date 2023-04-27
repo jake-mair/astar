@@ -12,7 +12,9 @@
 #include <cstdlib>
 #include <queue>
 #include <cmath>
-
+#include <fstream>
+#include <sstream>
+#include <termcolor/termcolor.hpp>
 
 using namespace std;
 
@@ -33,12 +35,52 @@ ostream & operator<<(ostream &out, vector<vector<int>> &A) {
         out << "[";
         vector<int> B = A[i];
         for (int j = 0; j < B.size(); j++) {
-            out << " " << B[j] << " ";
+            out << " " << B[j];
         }
-        out << "]" << endl;
+        out << " ]" << endl;
     }
     return out;
 }
+
+// Print 2D vector with colour
+void pretty_print(vector<vector<int>> grid, coordinates start, coordinates end) {
+    for (int i = 0; i < grid.size(); i++) {
+        cout << "[";
+        vector<int> row = grid[i];
+        for (int j = 0; j < row.size(); j++) {
+            if (i == start.first && j == start.second) {
+                cout << " " << termcolor::red << row[j] << termcolor::reset;
+            } else if (i == end.first && j == end.second) {
+                cout << " " << termcolor::blue << row[j] << termcolor::reset;
+            } else {
+                cout << " " << row[j];
+            }
+        }
+        cout << " ]" << endl;
+    }
+    cout << endl;
+}
+
+// Colour trace
+void colour_trace(vector<vector<int>> grid, vector<coordinates> xy) {
+    int spot = xy.size() - 1;
+    for (int i = 0; i < grid.size(); i++) {
+        cout << "[";
+        vector<int> row = grid[i];
+        for (int j = 0; j < row.size(); j++) {
+            if (i == xy[spot].first && j == xy[spot].second) {
+                cout << " " << termcolor::green << row[i] << termcolor::reset;
+                spot--;
+            } else {
+                cout << " " << row[i];
+            }
+        }
+        cout << " ]" << endl;
+    }
+    cout << endl;
+}
+
+
 
 struct Node {
     coordinates location;
@@ -112,9 +154,10 @@ bool in_vector(vector<Node*> list, coordinates xy) {
 vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target);
 vector<coordinates> find_path(Node* target);
 
-void search(vector<vector<int>> grid, Node* start, Node* target) {
+vector<coordinates> search(vector<vector<int>> grid, Node* start, Node* target) {
     priority_queue<Node*> open_list;
     vector<Node*> closed_list;
+    vector<coordinates> path;
 
     open_list.push(start);
 
@@ -127,9 +170,9 @@ void search(vector<vector<int>> grid, Node* start, Node* target) {
 
         for (int i = 0; i < successors.size(); i++) {
             if (successors[i]->location == target->location) {
-                vector<coordinates> path = find_path(successors[i]);
+                path = find_path(successors[i]);
                 cout << "The shortest path is: " << path << endl;
-                return;
+                return path; 
             } else {
                 if (in_queue(open_list, successors[i]->location)) {
                     continue;
@@ -144,6 +187,7 @@ void search(vector<vector<int>> grid, Node* start, Node* target) {
         }
        closed_list.push_back(q);
     }
+    return path;
 }
 
 bool valid_direction(vector<vector<int>> grid, coordinates xy) {
@@ -156,6 +200,7 @@ bool unblocked(vector<vector<int>> grid, coordinates xy) {
 
 vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target) {
     vector<Node*> successors;
+    // To generate the different successors
     vector<int> x_values = {-1, -1, -1, 0, 0, 1, 1, 1};
     vector<int> y_values = {-1, 0, 1, -1, 1, -1, 0, 1};
 
@@ -204,18 +249,55 @@ vector<coordinates> find_path(Node* target) {
     return path;
 }
 
-int main() {
-    coordinates st_cord(1, 0);
-    coordinates end_cord(1, 4);
+int main(int argc, char ** argv) {
+    string filename = argv[1];
+    ifstream instream(filename);
+    string line;
+
+    vector<vector<int>> grid;
+
+    while(getline(instream, line)) {
+        vector<int> row;
+        for (char c : line) {
+            if (isdigit(c)) {
+                row.push_back(c - '0');
+            }
+        }
+        if (!row.empty()) {
+            grid.push_back(row);
+        }
+    }
+
+    cout << endl << grid << endl;
+    int s_x;
+    int s_y;
+    int e_x;
+    int e_y;
+
+    cout << "Enter coordinates for the start value ((0, 0) is the top left, the first value " << endl;
+    cout << "increments as you go down and the second increments as you move over): " << endl << endl;
+    cout << "Enter x: ";
+    cin >> s_x;
+    cout << "Enter y: ";
+    cin >> s_y;
+    cout << endl << "Enter end coordinates: " << endl << endl;
+    cout << "Enter x: ";
+    cin >> e_x;
+    cout << "Enter y: ";
+    cin >> e_y;
+    cout << endl;  
+
+    coordinates st_cord(s_x, s_y);
+    coordinates end_cord(e_x, e_y);
+
+    pretty_print(grid, st_cord, end_cord);
     
     Node* start = new Node(st_cord, 0, 0);
     Node* end = new Node(end_cord, 0, 0);
 
-    vector<vector<int>> grid = {
-        {0, 0, 0, 1, 1},
-        {0, 1, 0, 0, 0}
-    };
+    vector<coordinates> path;
+    path = search(grid, start, end);
 
-    search(grid, start, end);
-    cout << "Search completed." << endl;
+    colour_trace(grid, path);
+    cout << endl << "Search completed." << endl;
 }
