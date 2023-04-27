@@ -19,6 +19,7 @@ using namespace std;
 typedef pair<int, int> coordinates;
 
 coordinates START_CORD(0, 0);
+int SUCCESSORS_POSSIBLE = 8;
 
 // Print coordinates
 ostream & operator<<(ostream &out, coordinates A) {
@@ -71,55 +72,57 @@ bool operator<(const Node& a, const Node& b) {
 
 double euclidian(coordinates a, coordinates b);
 
-// void create_nodes(vector<vector<int>> grid, priority_queue<Node> &pq) {
-//     int x = grid.size() - 1;
-//     int y = grid[0].size() - 1;
+bool in_queue(priority_queue<Node> &pq, coordinates xy) {
+    priority_queue<Node> copy = pq;
+    while (!copy.empty()) {
+        if (copy.top().location == xy) {
+            return true;
+        }
+        copy.pop();
+    }
+    return false;
+}
 
-//     coordinates end_pt(x, y);
-//     for (int i = 0; i < grid.size(); i++) {
-//         vector<int> temp = grid[i];
-//         for (int j = 0; j < temp.size(); j++) {
-//             coordinates current(i, j);
-//             Node a(current, 0, euclidian(current, end_pt));
-//             // cout << a << endl;
-//             pq.push(a);
-//         }
-//     }
-// }
+bool in_vector(vector<Node> list, coordinates xy) {
+    for (int i = 0; i < list.size(); i++) {
+        if (list[i].location == xy) {
+            return true;
+        }
+    }
+    return false;
+}
 
-void search(vector<vector<int>> grid) {
+vector<Node> generate_successors(vector<vector<int>> grid, Node parent, Node target);
+
+void search(vector<vector<int>> grid, Node start, Node target) {
     priority_queue<Node> open_list;
     vector<Node> closed_list;
 
-    Node start_node(START_CORD, 0, 0);
-    open_list.push(start_node);
+    open_list.push(start);
 
     while (!open_list.empty()) {
         Node q = open_list.top();
         open_list.pop();
 
-        // vector<Node> successors = generate_successors(grid, q);
+        vector<Node> successors = generate_successors(grid, q, target);
 
-        /*
         for (int i = 0; i < successors.size(); i++) {
-            if successors[i] is the goal stop search
+            if (successors[i].location == target.location) {
+                return;
+            } else {
+                if (in_queue(open_list, successors[i].location)) {
+                    continue;
+                }
+                if (in_vector(closed_list, successors[i].location)) {
+                    continue;
+                }
+                open_list.push(successors[i]);
 
-            else 
-                compute g and h
-                successors[i].move_cost = euclidian(successors[i].location, q.location);
-                successors[i].h_cost = euclidian(successors[i].location, target_node.location);
-            
-            
-            check open list
-            check closed list
+            }
 
-            add successors to open list
         }
-        
-        */
 
        closed_list.push_back(q);
-
     }
 }
 
@@ -127,20 +130,33 @@ bool valid_direction(vector<vector<int>> grid, coordinates xy) {
     return (xy.first >= 0 && xy.first < grid[0].size() && xy.second >= 0 && xy.second < grid.size());
 }
 
-/* vector<Node> generate_successors(vector<vector<int>> grid, Node parent) {
-    // Look in all directions and find which directions are valid
-    // Store those nodes in a vector
+bool unblocked(vector<vector<int>> grid, coordinates xy) {
+    return grid[xy.first][xy.second] == 1;
 }
 
-*/
+vector<Node> generate_successors(vector<vector<int>> grid, Node parent, Node target) {
+    vector<Node> successors;
+    vector<int> x_values = {-1, -1, -1, 0, 0, 1, 1, 1};
+    vector<int> y_values = {-1, 0, 1, -1, 1, -1, 0, 1};
 
-// In progress
-// int movement_cost(vector<vector<int>> grid, coordinates target) {
-//     coordinates current(START_CORD);
-//     while (current != target) {
+    for (int i = 0; i < 8; i++) {
+        int x = parent.location.first + x_values[i];
+        int y = parent.location.second + y_values[i];
 
-//     }
-// }
+        coordinates new_cord(x, y);
+
+        if (valid_direction(grid, new_cord) && !unblocked(grid, new_cord)) {
+            int m_cost = euclidian(new_cord, parent.location);
+            int h_cost = euclidian(new_cord, target.location);
+            Node successor(new_cord, m_cost, h_cost);
+            successor.parent = &parent;
+
+            successors.push_back(successor);
+        }
+    }
+    return successors;
+}
+
 
 void print_queue(priority_queue<Node> &pq) {
     while (!pq.empty())
@@ -160,17 +176,15 @@ double euclidian(coordinates a, coordinates b) {
 int main() {
     coordinates st_cord(0, 0);
     coordinates end_cord(1, 4);
-    Node start(st_cord, 0, euclidian(st_cord, end_cord));
-
-    coordinates invalid(0, 8);
-    // cout << manhattan(a, b) << endl;
-
-    // cout << a.location << endl;
+    
+    Node start(st_cord, 0, 0);
+    Node end(end_cord, 0, 0);
 
     vector<vector<int>> grid = {
         {0, 0, 0, 1, 1},
         {0, 1, 0, 0, 0}
     };
 
-    cout << boolalpha << valid_direction(grid, invalid) << endl;
+    search(grid, start, end);
+
 }
