@@ -62,7 +62,7 @@ void pretty_print(vector<vector<int>> grid, coordinates start, coordinates end) 
 }
 
 // Colour trace
-void colour_trace(vector<vector<int>> grid, vector<coordinates> xy) {
+void colour_trace(vector<vector<int>> grid, vector<coordinates> xy, coordinates target) {
     int spot = xy.size() - 1;
     for (int i = 0; i < grid.size(); i++) {
         cout << "[";
@@ -71,6 +71,8 @@ void colour_trace(vector<vector<int>> grid, vector<coordinates> xy) {
             if (i == xy[spot].first && j == xy[spot].second) {
                 cout << " " << termcolor::green << row[i] << termcolor::reset;
                 spot--;
+            } else if (i == target.first && j == target.second) {
+                cout << " " << termcolor::blue << row[i] << termcolor::reset;
             } else {
                 cout << " " << row[i];
             }
@@ -298,6 +300,6 @@ int main(int argc, char ** argv) {
     vector<coordinates> path;
     path = search(grid, start, end);
 
-    colour_trace(grid, path);
+    colour_trace(grid, path, end->location);
     cout << endl << "Search completed." << endl;
 }
