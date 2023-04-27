@@ -61,29 +61,6 @@ void pretty_print(vector<vector<int>> grid, coordinates start, coordinates end) 
     cout << endl;
 }
 
-// Colour trace
-void colour_trace(vector<vector<int>> grid, vector<coordinates> xy, coordinates target) {
-    int spot = xy.size() - 1;
-    for (int i = 0; i < grid.size(); i++) {
-        cout << "[";
-        vector<int> row = grid[i];
-        for (int j = 0; j < row.size(); j++) {
-            if (i == xy[spot].first && j == xy[spot].second) {
-                cout << " " << termcolor::green << row[i] << termcolor::reset;
-                spot--;
-            } else if (i == target.first && j == target.second) {
-                cout << " " << termcolor::blue << row[i] << termcolor::reset;
-            } else {
-                cout << " " << row[i];
-            }
-        }
-        cout << " ]" << endl;
-    }
-    cout << endl;
-}
-
-
-
 struct Node {
     coordinates location;
     double move_cost;
@@ -98,6 +75,31 @@ struct Node {
         f = m + h;
     }
 };
+
+
+bool in_cord_vector(vector<coordinates> list, coordinates xy);
+
+// Colour trace
+void colour_trace(vector<vector<int>> grid, vector<coordinates> xy, Node* start, Node* end) {
+    for (int i = 0; i < grid.size(); i++) {
+        cout << "[";
+        vector<int> row = grid[i];
+        for (int j = 0; j < row.size(); j++) {
+            coordinates temp(i, j);
+            if (temp == start->location) {
+                cout << " " << termcolor::red << row[j] << termcolor::reset;  
+            } else if (temp == end->location) {
+                cout << " " << termcolor::blue << row[j] << termcolor::reset;  
+            } else if (in_cord_vector(xy, temp)) {
+                cout << " " << termcolor::green << row[j] << termcolor::reset;  
+            } else {
+                cout << " " << row[j];
+            }
+        }
+        cout << " ]" << endl;
+    }
+    cout << endl;
+}
 
 // Print a Node
 ostream & operator<<(ostream &out, Node* A) {
@@ -120,7 +122,7 @@ ostream & operator<<(ostream &out, vector<Node*> nodes) {
 
 // Print vector of coordinates backwards
 ostream & operator<<(ostream &out, vector<coordinates> cords) {
-    for (int i = cords.size() -1 ; i > -1; i--) {
+    for (int i = cords.size() - 1 ; i > -1; i--) {
         out << cords[i];
     }
     return out;
@@ -153,6 +155,15 @@ bool in_vector(vector<Node*> list, coordinates xy) {
     return false;
 }
 
+bool in_cord_vector(vector<coordinates> list, coordinates xy) {
+    for (int i = 0; i < list.size(); i++) {
+        if (list[i] == xy) {
+            return true;
+        }
+    }
+    return false;
+}
+
 vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target);
 vector<coordinates> find_path(Node* target);
 
@@ -173,7 +184,7 @@ vector<coordinates> search(vector<vector<int>> grid, Node* start, Node* target) 
         for (int i = 0; i < successors.size(); i++) {
             if (successors[i]->location == target->location) {
                 path = find_path(successors[i]);
-                cout << "The shortest path is: " << path << endl;
+                cout << termcolor::yellow << "The shortest path is: " << path << endl << termcolor::reset;
                 return path; 
             } else {
                 if (in_queue(open_list, successors[i]->location)) {
@@ -276,18 +287,18 @@ int main(int argc, char ** argv) {
     int e_x;
     int e_y;
 
-    cout << "Enter coordinates for the start value ((0, 0) is the top left, the first value " << endl;
-    cout << "increments as you go down and the second increments as you move over): " << endl << endl;
-    cout << "Enter x: ";
+    cout << termcolor::yellow << "Enter coordinates for the start value ((0, 0) is the top left, the first value " << endl;
+    cout << "increments as you go down and the second increments as you move over): " << termcolor::reset << endl << endl;
+    cout << termcolor::cyan << "Enter x: ";
     cin >> s_x;
     cout << "Enter y: ";
     cin >> s_y;
-    cout << endl << "Enter end coordinates: " << endl << endl;
-    cout << "Enter x: ";
+    cout << termcolor::reset << endl << termcolor::yellow << "Enter end coordinates: " << endl << termcolor::reset << endl;
+    cout << termcolor::cyan << "Enter x: ";
     cin >> e_x;
     cout << "Enter y: ";
     cin >> e_y;
-    cout << endl;  
+    cout << termcolor::reset << endl;  
 
     coordinates st_cord(s_x, s_y);
     coordinates end_cord(e_x, e_y);
@@ -300,6 +311,8 @@ int main(int argc, char ** argv) {
     vector<coordinates> path;
     path = search(grid, start, end);
 
-    colour_trace(grid, path, end->location);
-    cout << endl << "Search completed." << endl;
+    cout << endl;
+
+    colour_trace(grid, path, start, end);
+    cout << endl << termcolor::red << "Search completed." << endl << termcolor::reset;
 }
