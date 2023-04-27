@@ -56,27 +56,27 @@ struct Node {
 };
 
 // Print a Node
-ostream & operator<<(ostream &out, Node A) {
+ostream & operator<<(ostream &out, Node* A) {
     out << "Node: " << endl;
-    out << "Location: " << "(" << A.location << ")" << endl;
-    out << "Movement cost: " << A.move_cost << endl;
-    out << "Heuristic cost: " << A.h_cost << endl;
-    out << "F-value: " << A.f << endl;
-    out << "Parent location: " << A.parent->location << endl;
+    out << "Location: " << "(" << A->location << ")" << endl;
+    out << "Movement cost: " << A->move_cost << endl;
+    out << "Heuristic cost: " << A->h_cost << endl;
+    out << "F-value: " << A->f << endl;
+    out << "Parent: " << A->parent->location << endl;
     return out;
 }
 
 // Print vector of Nodes
-ostream & operator<<(ostream &out, vector<Node> nodes) {
+ostream & operator<<(ostream &out, vector<Node*> nodes) {
     for (int i = 0; i < nodes.size(); i++) {
         out << nodes[i];
     }
     return out;
 }
 
-// Print vector of coordinates
+// Print vector of coordinates backwards
 ostream & operator<<(ostream &out, vector<coordinates> cords) {
-    for (int i = 0; i < cords.size(); i++) {
+    for (int i = cords.size() -1 ; i > -1; i--) {
         out << cords[i];
     }
     return out;
@@ -89,10 +89,10 @@ bool operator<(const Node& a, const Node& b) {
 
 double euclidian(coordinates a, coordinates b);
 
-bool in_queue(priority_queue<Node> &pq, coordinates xy) {
-    priority_queue<Node> copy = pq;
+bool in_queue(priority_queue<Node*> &pq, coordinates xy) {
+    priority_queue<Node*> copy = pq;
     while (!copy.empty()) {
-        if (copy.top().location == xy) {
+        if (copy.top()->location == xy) {
             return true;
         }
         copy.pop();
@@ -100,41 +100,41 @@ bool in_queue(priority_queue<Node> &pq, coordinates xy) {
     return false;
 }
 
-bool in_vector(vector<Node> list, coordinates xy) {
+bool in_vector(vector<Node*> list, coordinates xy) {
     for (int i = 0; i < list.size(); i++) {
-        if (list[i].location == xy) {
+        if (list[i]->location == xy) {
             return true;
         }
     }
     return false;
 }
 
-vector<Node> generate_successors(vector<vector<int>> grid, Node parent, Node target);
-vector<coordinates> find_path(Node target);
+vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target);
+vector<coordinates> find_path(Node* target);
 
-void search(vector<vector<int>> grid, Node start, Node target) {
-    priority_queue<Node> open_list;
-    vector<Node> closed_list;
+void search(vector<vector<int>> grid, Node* start, Node* target) {
+    priority_queue<Node*> open_list;
+    vector<Node*> closed_list;
 
     open_list.push(start);
 
     int count = 0;
     while (!open_list.empty()) {
-        Node q = open_list.top();
+        Node* q = open_list.top();
         open_list.pop();
 
-        vector<Node> successors = generate_successors(grid, q, target);
+        vector<Node*> successors = generate_successors(grid, q, target);
 
         for (int i = 0; i < successors.size(); i++) {
-            if (successors[i].location == target.location) {
-                vector<coordinates> path = find_path(target);
-                cout << "The path is: " << path << endl;
+            if (successors[i]->location == target->location) {
+                vector<coordinates> path = find_path(successors[i]);
+                cout << "The shortest path is: " << path << endl;
                 return;
             } else {
-                if (in_queue(open_list, successors[i].location)) {
+                if (in_queue(open_list, successors[i]->location)) {
                     continue;
                 }
-                if (in_vector(closed_list, successors[i].location)) {
+                if (in_vector(closed_list, successors[i]->location)) {
                     continue;
                 }
                 open_list.push(successors[i]);
@@ -154,22 +154,22 @@ bool unblocked(vector<vector<int>> grid, coordinates xy) {
     return grid[xy.first][xy.second] == 1;
 }
 
-vector<Node> generate_successors(vector<vector<int>> grid, Node parent, Node target) {
-    vector<Node> successors;
+vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target) {
+    vector<Node*> successors;
     vector<int> x_values = {-1, -1, -1, 0, 0, 1, 1, 1};
     vector<int> y_values = {-1, 0, 1, -1, 1, -1, 0, 1};
 
     for (int i = 0; i < 8; i++) {
-        int x = parent.location.first + x_values[i];
-        int y = parent.location.second + y_values[i];
+        int x = parent->location.first + x_values[i];
+        int y = parent->location.second + y_values[i];
 
         coordinates new_cord(x, y);
 
-        if (valid_direction(grid, new_cord) && !unblocked(grid, new_cord) && new_cord != parent.location) {
-            int m_cost = euclidian(new_cord, parent.location);
-            int h_cost = euclidian(new_cord, target.location);
-            Node successor(new_cord, m_cost, h_cost);
-            successor.parent = &parent;
+        if (valid_direction(grid, new_cord) && !unblocked(grid, new_cord) && new_cord != parent->location) {
+            int m_cost = euclidian(new_cord, parent->location);
+            int h_cost = euclidian(new_cord, target->location);
+            Node* successor = new Node(new_cord, m_cost, h_cost);
+            successor->parent = parent;
 
             successors.push_back(successor);
         }
@@ -178,7 +178,7 @@ vector<Node> generate_successors(vector<vector<int>> grid, Node parent, Node tar
 }
 
 
-void print_queue(priority_queue<Node> &pq) {
+void print_queue(priority_queue<Node*> &pq) {
     while (!pq.empty())
 		{
 			cout << pq.top() << endl;
@@ -193,40 +193,29 @@ double euclidian(coordinates a, coordinates b) {
     return sqrt(x_diff * x_diff + y_diff * y_diff);
 }
 
-vector<coordinates> find_path(Node target) {
+vector<coordinates> find_path(Node* target) {
     vector<coordinates> path;
-    cout << target << endl;
-    Node* current = &target;
-    cout << "Ok" << endl;
-    while (current->parent) {
+    Node* current = target;
+    while (current->parent != nullptr) {
         path.push_back(current->location);
-        cout << "Current path: " << path << endl << endl;
         current = current->parent;
     }
+    path.push_back(current->location);
     return path;
 }
 
 int main() {
-    coordinates st_cord(0, 0);
+    coordinates st_cord(1, 0);
     coordinates end_cord(1, 4);
     
-    Node start(st_cord, 0, 0);
-    Node end(end_cord, 0, 0);
+    Node* start = new Node(st_cord, 0, 0);
+    Node* end = new Node(end_cord, 0, 0);
 
     vector<vector<int>> grid = {
         {0, 0, 0, 1, 1},
         {0, 1, 0, 0, 0}
     };
 
-    Node* starta = new Node(st_cord, 0, 0);
-    Node* enda = new Node(end_cord, 0, 0);
-    starta->parent = enda;
-
-    cout << starta->parent->location << endl;
-
-
-
     search(grid, start, end);
-    cout << "Search completed. " << endl;
-
+    cout << "Search completed." << endl;
 }
