@@ -52,8 +52,27 @@ void pretty_print(vector<vector<int>> grid, coordinates start, coordinates end) 
                 cout << " " << termcolor::red << row[j] << termcolor::reset;
             } else if (i == end.first && j == end.second) {
                 cout << " " << termcolor::blue << row[j] << termcolor::reset;
+            } else if (row[j] == 1) {
+                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
             } else {
                 cout << " " << row[j];
+            }
+        }
+        cout << " ]" << endl;
+    }
+    cout << endl;
+}
+
+void print_blocked(vector<vector<int>> grid) {
+    cout << endl;
+    for (int i = 0; i < grid.size(); i++) {
+        cout << "[";
+        vector<int> row = grid[i];
+        for (int j = 0; j < row.size(); j++) {
+            if (row[j] == 0) {
+                cout << " " << termcolor::red << row[j] << termcolor::reset;
+            } else {
+                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
             }
         }
         cout << " ]" << endl;
@@ -92,6 +111,8 @@ void colour_trace(vector<vector<int>> grid, vector<coordinates> xy, Node* start,
                 cout << " " << termcolor::blue << row[j] << termcolor::reset;  
             } else if (in_cord_vector(xy, temp)) {
                 cout << " " << termcolor::green << row[j] << termcolor::reset;  
+            } else if (row[j] == 1) {
+                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
             } else {
                 cout << " " << row[j];
             }
@@ -174,7 +195,6 @@ vector<coordinates> search(vector<vector<int>> grid, Node* start, Node* target) 
 
     open_list.push(start);
 
-    int count = 0;
     while (!open_list.empty()) {
         Node* q = open_list.top();
         open_list.pop();
@@ -217,7 +237,7 @@ vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* 
     vector<int> x_values = {-1, -1, -1, 0, 0, 1, 1, 1};
     vector<int> y_values = {-1, 0, 1, -1, 1, -1, 0, 1};
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < SUCCESSORS_POSSIBLE; i++) {
         int x = parent->location.first + x_values[i];
         int y = parent->location.second + y_values[i];
 
@@ -242,6 +262,19 @@ void print_queue(priority_queue<Node*> &pq) {
 			cout << pq.top() << endl;
 			pq.pop();
 		}
+}
+
+vector<vector<int>> random_grid(int rows, int cols) {
+    vector<vector<int>> grid;
+    for (int i = 0; i < rows; i++) {
+        vector<int> row;
+        for (int j = 0; j < cols; j++) {
+            int rand_num = rand() % 2;
+            row.push_back(rand_num);
+        }
+        grid.push_back(row);
+    }
+    return grid;
 }
 
 // Heuristic function
@@ -281,11 +314,27 @@ int main(int argc, char ** argv) {
         }
     }
 
-    cout << endl << grid << endl;
-    int s_x;
-    int s_y;
-    int e_x;
-    int e_y;
+    
+    int s_x, s_y, e_x, e_y;
+
+    string affirm;
+    int rows, cols;
+
+    cout << endl << termcolor::yellow << "Would you like a randomized graph? (Y or N)" << endl;
+    cin >> affirm;
+
+
+    if (affirm == "Y" || affirm == "y") {
+        cout << endl << termcolor::cyan << "# of rows: ";
+        cin >> rows;
+        cout << "# of cols: ";
+        cin >> cols;
+        cout << termcolor::reset;
+        grid = random_grid(rows, cols);
+        print_blocked(grid);
+    } else {
+        print_blocked(grid);
+    }
 
     cout << termcolor::yellow << "Enter coordinates for the start value ((0, 0) is the top left, the first value " << endl;
     cout << "increments as you go down and the second increments as you move over): " << termcolor::reset << endl << endl;
@@ -315,4 +364,8 @@ int main(int argc, char ** argv) {
 
     colour_trace(grid, path, start, end);
     cout << endl << termcolor::red << "Search completed." << endl << termcolor::reset;
+    
+    if (path.empty()) {
+        cout << termcolor::red << "No results yielded. No available path." << endl << termcolor::reset;
+    }
 }
