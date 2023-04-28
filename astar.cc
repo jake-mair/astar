@@ -5,6 +5,11 @@
  * @date May 1, 2023
  */
 
+
+// CITE: GeeksforGeeks
+// DESC: I did not know what A*search was so I used the geeksforgeeks website to learn what it was and used their pseudocode
+//       to develope my code
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,13 +19,15 @@
 #include <cmath>
 #include <fstream>
 #include <sstream>
+
+// Colouring the termnial
+// Can install with "brew install termcolor"
 #include <termcolor/termcolor.hpp>
 
 using namespace std;
 
 typedef pair<int, int> coordinates;
 
-coordinates START_CORD(0, 0);
 int SUCCESSORS_POSSIBLE = 8;
 
 // Print coordinates
@@ -63,6 +70,7 @@ void pretty_print(vector<vector<int>> grid, coordinates start, coordinates end) 
     cout << endl;
 }
 
+// Prints the grid with red for not blocked and black for blocked
 void print_blocked(vector<vector<int>> grid) {
     cout << endl;
     for (int i = 0; i < grid.size(); i++) {
@@ -95,7 +103,7 @@ struct Node {
     }
 };
 
-
+// Prototyping
 bool in_cord_vector(vector<coordinates> list, coordinates xy);
 
 // Colour trace
@@ -111,10 +119,8 @@ void colour_trace(vector<vector<int>> grid, vector<coordinates> xy, Node* start,
                 cout << " " << termcolor::blue << row[j] << termcolor::reset;  
             } else if (in_cord_vector(xy, temp)) {
                 cout << " " << termcolor::green << row[j] << termcolor::reset;  
-            } else if (row[j] == 1) {
-                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
             } else {
-                cout << " " << row[j];
+                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
             }
         }
         cout << " ]" << endl;
@@ -154,8 +160,10 @@ bool operator<(const Node& a, const Node& b) {
     return a.f > b.f;
 }
 
+// Prototyping
 double euclidian(coordinates a, coordinates b);
 
+// Checks if the coordinates are already in the queue
 bool in_queue(priority_queue<Node*> &pq, coordinates xy) {
     priority_queue<Node*> copy = pq;
     while (!copy.empty()) {
@@ -167,6 +175,7 @@ bool in_queue(priority_queue<Node*> &pq, coordinates xy) {
     return false;
 }
 
+// Checks if the coordinates are already in the vector of nodes
 bool in_vector(vector<Node*> list, coordinates xy) {
     for (int i = 0; i < list.size(); i++) {
         if (list[i]->location == xy) {
@@ -176,6 +185,7 @@ bool in_vector(vector<Node*> list, coordinates xy) {
     return false;
 }
 
+// Checks if the coordinates are already in the vector of coordinates
 bool in_cord_vector(vector<coordinates> list, coordinates xy) {
     for (int i = 0; i < list.size(); i++) {
         if (list[i] == xy) {
@@ -185,9 +195,11 @@ bool in_cord_vector(vector<coordinates> list, coordinates xy) {
     return false;
 }
 
+// Prototyping
 vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target);
 vector<coordinates> find_path(Node* target);
 
+// A*search algorithm
 vector<coordinates> search(vector<vector<int>> grid, Node* start, Node* target) {
     priority_queue<Node*> open_list;
     vector<Node*> closed_list;
@@ -223,14 +235,17 @@ vector<coordinates> search(vector<vector<int>> grid, Node* start, Node* target) 
     return path;
 }
 
+// Checks if the given coordinates are a valid direction within the grid
 bool valid_direction(vector<vector<int>> grid, coordinates xy) {
     return (xy.first >= 0 && xy.first < grid.size() && xy.second >= 0 && xy.second < grid[0].size());
 }
 
+// Checks if the given coordinates are blocked
 bool unblocked(vector<vector<int>> grid, coordinates xy) {
     return grid[xy.first][xy.second] == 1;
 }
 
+// Helper function for search to find the neighbours
 vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* target) {
     vector<Node*> successors;
     // To generate the different successors
@@ -255,7 +270,7 @@ vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* 
     return successors;
 }
 
-
+// If needed to check, can print the queue
 void print_queue(priority_queue<Node*> &pq) {
     while (!pq.empty())
 		{
@@ -264,7 +279,8 @@ void print_queue(priority_queue<Node*> &pq) {
 		}
 }
 
-vector<vector<int>> random_grid(int rows, int cols) {
+// Generates a grid
+vector<vector<int>> generate_grid(int rows, int cols) {
     vector<vector<int>> grid;
     for (int i = 0; i < rows; i++) {
         vector<int> row;
@@ -284,6 +300,7 @@ double euclidian(coordinates a, coordinates b) {
     return sqrt(x_diff * x_diff + y_diff * y_diff);
 }
 
+// Retraces the steps to find the path
 vector<coordinates> find_path(Node* target) {
     vector<coordinates> path;
     Node* current = target;
@@ -302,6 +319,7 @@ int main(int argc, char ** argv) {
 
     vector<vector<int>> grid;
 
+    // Reading in the graph
     while(getline(instream, line)) {
         vector<int> row;
         for (char c : line) {
@@ -314,13 +332,13 @@ int main(int argc, char ** argv) {
         }
     }
 
-    
+    // Starting and ending values for coordiantes to be built
     int s_x, s_y, e_x, e_y;
 
     string affirm;
     int rows, cols;
 
-    cout << endl << termcolor::yellow << "Would you like a randomized graph? (Y or N)" << endl;
+    cout << endl << termcolor::yellow << "Would you like a generated graph? (Y or N)" << endl;
     cin >> affirm;
 
 
@@ -330,7 +348,7 @@ int main(int argc, char ** argv) {
         cout << "# of cols: ";
         cin >> cols;
         cout << termcolor::reset;
-        grid = random_grid(rows, cols);
+        grid = generate_grid(rows, cols);
         print_blocked(grid);
     } else {
         print_blocked(grid);
