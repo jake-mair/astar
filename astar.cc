@@ -262,7 +262,7 @@ vector<Node*> generate_successors(vector<vector<int>> grid, Node* parent, Node* 
         coordinates new_cord(x, y);
 
         if (valid_direction(grid, new_cord) && !unblocked(grid, new_cord) && new_cord != parent->location) {
-            int m_cost = euclidian(new_cord, parent->location);
+            int m_cost = euclidian(new_cord, parent->location) + parent->move_cost;
             int h_cost = euclidian(new_cord, target->location);
             Node* successor = new Node(new_cord, m_cost, h_cost);
             successor->parent = parent;
