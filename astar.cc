@@ -10,6 +10,9 @@
 // DESC: I did not know what A*search was so I used the geeksforgeeks website to learn what it was and used their pseudocode
 //       to develope my code
 
+// CITE: https://sentry.io/answers/char-to-int-in-c-and-cpp/
+// DESC: How to convert from a char to and int
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -60,7 +63,7 @@ void pretty_print(vector<vector<int>> grid, coordinates start, coordinates end) 
             } else if (i == end.first && j == end.second) {
                 cout << " " << termcolor::blue << row[j] << termcolor::reset;
             } else if (row[j] == 1) {
-                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
+                cout << " " << termcolor::color<219, 212, 212> << row[j] << termcolor::reset;
             } else {
                 cout << " " << row[j];
             }
@@ -80,7 +83,7 @@ void print_blocked(vector<vector<int>> grid) {
             if (row[j] == 0) {
                 cout << " " << termcolor::red << row[j] << termcolor::reset;
             } else {
-                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
+                cout << " " << termcolor::color<219, 212, 212> << row[j] << termcolor::reset;
             }
         }
         cout << " ]" << endl;
@@ -120,7 +123,7 @@ void colour_trace(vector<vector<int>> grid, vector<coordinates> xy, Node* start,
             } else if (in_cord_vector(xy, temp)) {
                 cout << " " << termcolor::green << row[j] << termcolor::reset;  
             } else {
-                cout << " " << termcolor::color<0> << row[j] << termcolor::reset;
+                cout << " " << termcolor::color<219, 212, 212> << row[j] << termcolor::reset;
             }
         }
         cout << " ]" << endl;
@@ -340,7 +343,7 @@ int main(int argc, char ** argv) {
 
     cout << endl << termcolor::yellow << "Would you like a generated graph? (Y or N)" << endl;
     cin >> affirm;
-
+    cout << termcolor::reset;
 
     if (affirm == "Y" || affirm == "y") {
         cout << endl << termcolor::cyan << "# of rows: ";
@@ -386,4 +389,5 @@ int main(int argc, char ** argv) {
     if (path.empty()) {
         cout << termcolor::red << "No results yielded. No available path." << endl << termcolor::reset;
     }
+
 }
